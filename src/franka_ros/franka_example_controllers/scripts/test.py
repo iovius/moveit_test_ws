@@ -11,13 +11,6 @@ from std_msgs.msg import String
 from moveit_commander.conversions import pose_to_list
 
 def all_close(goal, actual, tolerance):
-  """
-  Convenience method for testing if a list of values are within a tolerance of their counterparts in another list
-  @param: goal       A list of floats, a Pose or a PoseStamped
-  @param: actual     A list of floats, a Pose or a PoseStamped
-  @param: tolerance  A float
-  @returns: bool
-  """
   all_equal = True
   if type(goal) is list:
     for index in range(len(goal)):
@@ -107,18 +100,9 @@ class MoveGroupPythonIntefaceTutorial(object):
     self.group_names = group_names
 
   def go_to_joint_state(self):
-    # Copy class variables to local variables to make the web tutorials more clear.
-    # In practice, you should use the class variables directly unless you have a good
-    # reason not to.
+    
     move_group = self.move_group
 
-    ## BEGIN_SUB_TUTORIAL plan_to_joint_state
-    ##
-    ## Planning to a Joint Goal
-    ## ^^^^^^^^^^^^^^^^^^^^^^^^
-    ## The Panda's zero configuration is at a `singularity <https://www.quora.com/Robotics-What-is-meant-by-kinematic-singularity>`_ so the first
-    ## thing we want to do is move it to a slightly better configuration.
-    # We can get the joint values from the group and adjust some of the values:
     joint_goal = move_group.get_current_joint_values()
     joint_goal[0] = 0.611317
     joint_goal[1] = -0.934481
@@ -131,39 +115,18 @@ class MoveGroupPythonIntefaceTutorial(object):
     move_group.set_max_acceleration_scaling_factor(0.1)
     move_group.set_max_velocity_scaling_factor(0.1)
 
-    # The go command can be called with joint values, poses, or without any
-    # parameters if you have already set the pose or joint target for the group
     move_group.go(joint_goal, wait=True)
 
-    # Calling ``stop()`` ensures that there is no residual movement
     move_group.stop()
 
-    ## END_SUB_TUTORIAL
-
-    # For testing:
     current_joints = move_group.get_current_joint_values()
     return all_close(joint_goal, current_joints, 0.01)
 
   def go_to_pose_goal(self):
-    # Copy class variables to local variables to make the web tutorials more clear.
-    # In practice, you should use the class variables directly unless you have a good
-    # reason not to.
+  
     move_group = self.move_group
 
-    ## BEGIN_SUB_TUTORIAL plan_to_pose
-    ##
-    ## Planning to a Pose Goal
-    ## ^^^^^^^^^^^^^^^^^^^^^^^
-    ## We can plan a motion for this group to a desired pose for the
-    ## end-effector:
     pose_goal = geometry_msgs.msg.Pose()
-    #pose_goal.position.x = 0.539239 # tole je za laser_focus
-    #pose_goal.position.y = 0.0440991
-    #pose_goal.position.z = 0.193803
-    #pose_goal.orientation.x = 0.712408
-    #pose_goal.orientation.y = -0.651169
-    #pose_goal.orientation.z = 0.163018
-    #pose_goal.orientation.w = -0.204643
     pose_goal.position.x = 0.281131388288
     pose_goal.position.y = -0.00315430765291
     pose_goal.position.z = 0.353840237237
@@ -172,62 +135,14 @@ class MoveGroupPythonIntefaceTutorial(object):
     pose_goal.orientation.z = -0.169532187796
     pose_goal.orientation.w = 0.211350732857
     
-    #move_group.set_max_acceleration_scaling_factor(0.1)
-    #move_group.set_max_velocity_scaling_factor(0.1)
-
-    #move_group.set_pose_target(pose_goal,"laser_focus")
     move_group.set_pose_target(pose_goal,"panda_link8")
 
-    ## Now, we call the planner to compute the plan and execute it.
     plan = move_group.go(wait=True)
-    # Calling `stop()` ensures that there is no residual movement
     move_group.stop()
-    # It is always good to clear your targets after planning with poses.
-    # Note: there is no equivalent function for clear_joint_value_targets()
     move_group.clear_pose_targets()
 
-    ## END_SUB_TUTORIAL
-
-    # For testing:
-    # Note that since this section of code will not be included in the tutorials
-    # we use the class variable rather than the copied state variable
     current_pose = self.move_group.get_current_pose().pose
     return all_close(pose_goal, current_pose, 0.01)
-
-  def display_trajectory(self, plan):
-    # Copy class variables to local variables to make the web tutorials more clear.
-    # In practice, you should use the class variables directly unless you have a good
-    # reason not to.
-    robot = self.robot
-    display_trajectory_publisher = self.display_trajectory_publisher
-
-    ## BEGIN_SUB_TUTORIAL display_trajectory
-    ##
-    ## Displaying a Trajectory
-    ## ^^^^^^^^^^^^^^^^^^^^^^^
-    ## You can ask RViz to visualize a plan (aka trajectory) for you. But the
-    ## group.plan() method does this automatically so this is not that useful
-    ## here (it just displays the same trajectory again):
-    ##
-    ## A `DisplayTrajectory`_ msg has two primary fields, trajectory_start and trajectory.
-    ## We populate the trajectory_start with our current robot state to copy over
-    ## any AttachedCollisionObjects and add our plan to the trajectory.
-    display_trajectory = moveit_msgs.msg.DisplayTrajectory()
-    display_trajectory.trajectory_start = robot.get_current_state()
-    display_trajectory.trajectory.append(plan)
-    # Publish
-    display_trajectory_publisher.publish(display_trajectory);
-
-    ## END_SUB_TUTORIAL
-
-
-  def print_pose(self, frame):
-
-    move_group = self.move_group
-    print move_group.get_current_pose(frame)
-
-
-
 
   def execute_plan(self, plan):
     # Copy class variables to local variables to make the web tutorials more clear.
@@ -292,13 +207,6 @@ class MoveGroupPythonIntefaceTutorial(object):
 
 def main():
   try:
-    print ""
-    print "----------------------------------------------------------"
-    print "Welcome to the MoveIt MoveGroup Python Interface Tutorial"
-    print "----------------------------------------------------------"
-    print "Press Ctrl-D to exit at any time"
-    print ""
-    print "============ Press `Enter` to begin the tutorial by setting up the moveit_commander ..."
     #raw_input()
     tutorial = MoveGroupPythonIntefaceTutorial()
     
